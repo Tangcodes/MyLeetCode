@@ -11,12 +11,10 @@ public class UniqueEmailAddresses {
         Set<String> set = new HashSet<>();
         String hasplus;
         String hasnoplus;
-        String res="";
         for (String s : emails){
             String[] split = s.split("@");
-            if(split[0].contains("+")) res = split[0].replaceAll("\\.","").indexOf("+") +"@"+ split[1];
-            else res = split[0].replaceAll("\\.","")+ "@" + split[1];
-            set.add(res);
+            String[] local = split[0].split("\\+"); // split local by '+'.
+            set.add(local[0].replace(".", "") + "@" + split[1]); // remove all '.', and concatenate '@' and domain. 
         }
         return set.size();
     }
