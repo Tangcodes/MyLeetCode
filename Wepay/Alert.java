@@ -17,97 +17,109 @@ public class Alert {
         list.add(2);
 
         int windowSize = 2;
-        double allowedIncrease = 2.5;
-        System.out.println(isAlert(list, windowSize, allowedIncrease));
+        System.out.println(alert(list, windowSize, 2));
     }
     
     // Start here
-    public static boolean isAlert(List<Integer> list, int s, double k){
+    // Complete the alert function below.
+    static boolean alert(List<Integer> inputs, int windowSize, float allowedIncrease) {
         // Initialize data
-        int[] nums = new int[list.size()-1];
+        int[] nums = new int[inputs.size()-1];
         int n = nums.length;
-        for(int i=0;i<list.size()-1;i++){
-            nums[i] = list.get(i+1);
+        for (int i=0;i<inputs.size()-1;i++){
+            nums[i] = inputs.get(i+1);
         }
-        
+        return isAlert(nums,windowSize,allowedIncrease);
+    }
+
+    static boolean isAlert(int[] nums, int s, float k){
         // Get the max for each window
-        int[] maxs = maxInWindow(nums, s);
-        
-        // Get the average for each window
-        double[] avgs = new double[n - s + 1];
-        int sum = 0;
-        for(int i=0;i<n;i++){
-            if(i <= s - 1) {
-                sum += nums[i];
-            }else {
-                sum -= nums[i - s];
-                sum += nums[i];
-            }
-             
-            if(i >= s - 1) {
-                avgs[i - (s - 1)] = (double)sum / (double) s;
-            }
-        }
-        
-        // Check if value is more than the allowed increase above the 
-        // window average in ALL windows
-        for(int i=0;i<maxs.length;i++){
+        int[] maxs = maxInWindow(nums,s);
+
+        //Get the average for each window
+        double[] avgs = avgsInWindow(nums,s);
+
+        // Check if value is more than the allowed increase above the window average
+        // in ALL window
+        for (int i=0;i<maxs.length;i++){
             boolean temp = true;
-            for(int j=i;j<i+s && j<avgs.length; j++) {
-                if(maxs[i] / avgs[j] <= k) {
+            for (int j=i;j<i+s && j<avgs.length;j++){
+                if (maxs[i]/avgs[j]<=k){
                     temp = false;
                 }
             }
-             
-            if(temp) {
+
+            if (temp){
                 return temp;
             }
         }
-        
-        // Check if any window's average is more than the acceptable increase 
+
+        // Check if any window's average is more than the acceptable increase
         // over any previous window's average value
         Double min = null;
         Double max = null;
-        for(int i=0;i<maxs.length;i++) {
-            if(min == null || avgs[i] < min) {
+        for (int i=0;i<maxs.length;i++){
+            // Update min
+            if (min==null || avgs[i]<min){
                 min = avgs[i];
             }
-             
-            if(max == null || avgs[i] > max) {
+
+            // Update max
+            if (max==null || avgs[i]>max){
                 max = avgs[i];
             }
-             
-            if(min != null && max != null && max / min > k) {
+
+            if (min!=null && max!=null && max/min>k){
                 return true;
             }
         }
-        
         // Default
         return false;
     }
-    
-    public static int[] maxInWindow(int[] nums,int s ){
+
+    static int[] maxInWindow(int[] nums, int s){
         int n = nums.length;
-        if(n == 0 || s <= 0) return new int[0];
-        int[] res = new int[n - s + 1];
-        
+        if(n==0 || s<=0) return new int[0];
+        int[] res = new int[n-s+1];
+
+        // Use Deque to store maxs
         Deque<Integer> queue = new ArrayDeque<>();
-        for(int i=0;i<n;i++){
+        for (int i=0;i<n;i++){
             // Check window range
-            if(!queue.isEmpty() && queue.peek() <i - s + 1){
+            if (!queue.isEmpty() && queue.peek()<i-s+1){
                 queue.pollFirst();
             }
+
             // Remove smaller numbers in window
-            while(!queue.isEmpty() && nums[queue.getLast()] < nums[i]){
+            while(!queue.isEmpty() && nums[queue.getLast()]<nums[i]){
                 queue.pollLast();
             }
-            
+
             queue.offerLast(i);
-            if(i >= s - 1){
-                res[i - s + 1] = nums[queue.getFirst()];
+            if (i>=s-1){
+                res[i-s+1] = nums[queue.getFirst()];
             }
         }
         return res;
     }
-    
+    static double[] avgsInWindow(int[] nums,int s){
+        int n = nums.length;
+        double[] res = new double[n-s+1];
+        int sum = 0;
+        for (int i=0;i<n;i++){
+            // Still in the window range
+            if (i<=s-1){
+                sum+=nums[i];
+            }
+            else{
+                sum-=nums[i-s];
+                sum+=nums[i];
+            }
+
+            if (i>=s-1){
+                res[i-(s-1)] = (double)sum/(double)s;
+            }
+        }
+        return res;
+    }   
 }
